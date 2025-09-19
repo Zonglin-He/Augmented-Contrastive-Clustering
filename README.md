@@ -266,5 +266,3 @@ PRs welcome! Ideas:
 4. Additional datasets/config templates.
 
 ---
-
-If you want, I can tailor the **paths/imports** in the Quick Start to match your exact repo structure — just share your tree (e.g., `tree -L 2`).
