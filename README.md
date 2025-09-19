@@ -235,10 +235,11 @@ Defined per dataset in `configs/tta_hparams_new.py`:
 If this repo helps your research, please cite the paper and this implementation:
 
 ```
-@article{ACCUP2024,
-  title   = {Augmented Contrastive Clustering with Uncertainty-Aware Prototyping for Time Series Test-Time Adaptation},
-  author  = {Authors},
-  year    = {2024}
+@article{Gong2025ACCUParXiv,
+  author  = {Gong, Peiliang and Ragab, Mohamed and Wu, Min and Chen, Zhenghua and Su, Yongyi and Li, Xiaoli and Zhang, Daoqiang},
+  title   = {Augmented Contrastive Clustering with Uncertainty-Aware Prototyping for Time Series Test Time Adaptation},
+  journal = {arXiv preprint arXiv:2501.01472},
+  year    = {2025}
 }
 
 @misc{ACCUPCode,
