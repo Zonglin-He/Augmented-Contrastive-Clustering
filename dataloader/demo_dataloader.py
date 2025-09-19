@@ -8,6 +8,10 @@ import numpy as np
 from .augmentations import DataTransform
 
 class Load_Dataset(Dataset):
+    """"
+    demo_dataloader.py 基本上是对 dataloader.py 的扩展，引入了 DataTransform 增强。
+    其设计目的是当算法需要将原始样本和增强样本同时输入模型（如ACCUP）时，提供合适的 DataLoader
+    """
     def __init__(self, dataset, dataset_configs, seed_id = 1):
         super().__init__()
         self.num_channels = dataset_configs.input_channels
@@ -65,6 +69,9 @@ class Load_Dataset(Dataset):
         return self.len
 
 class Load_ALL_Dataset(Dataset):
+    """
+    将源训练+目标测试拼接，然后也生成统一的 aug, aug2 增强。逻辑与Load_Dataset(demo)类似，但作用在合并数据上
+    """
     def __init__(self, train_dataset, test_dataset, dataset_configs, seed_id = 1):
         super().__init__()
         self.num_channels = dataset_configs.input_channels

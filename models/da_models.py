@@ -1,13 +1,12 @@
 import torch
 from torch import nn
 
-def get_backbone_class(backbone_name):
-    """Return the algorithm class with the given name."""
+def get_backbone_class(backbone_name): #根据给定的名称返回对应的类
     if backbone_name not in globals():
         raise NotImplementedError("Algorithm not found: {}".format(backbone_name))
     return globals()[backbone_name]
 
-## Feature Extractor
+#特征提取器
 class CNN(nn.Module):
     def __init__(self, configs):
         super(CNN, self).__init__()
@@ -41,18 +40,19 @@ class CNN(nn.Module):
         x = self.conv_block1(x_in)
         x = self.conv_block2(x)
         x = self.conv_block3(x)
-        x_flat = self.aap(x).view(x.shape[0], -1)
+        x_flat = self.aap(x).view(x.shape[0], -1) #展平
 
         return x_flat, x
 
-##  Classifier
+# 分类头
 class classifier(nn.Module):
     def __init__(self, configs):
         super(classifier, self).__init__()
 
         model_output_dim = configs.features_len
         self.logits = nn.Linear(model_output_dim * configs.final_out_channels, configs.num_classes)
+        #输入维度 = feature_extractor输出向量长度 (final_out_channels * features_len)，输出维度 = 类别数
 
-    def forward(self, x):
+    def forward(self, x): #前向传播，对输入特征 x 进行线性变换得到每类的 logits
         predictions = self.logits(x)
         return predictions

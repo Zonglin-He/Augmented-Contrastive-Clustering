@@ -1,15 +1,14 @@
 import os
 import torch
 
-def get_dataset_class(dataset_name):
-    """Return the algorithm class with the given name."""
+def get_dataset_class(dataset_name): # 根据给定数据集名称字符串返回对应的数据集配置类
     if dataset_name not in globals():
-        raise NotImplementedError("Dataset not found: {}".format(dataset_name))
+        raise NotImplementedError("Dataset not found: {}".format(dataset_name)) # 如果数据集名称不在全局变量中，抛出未实现错误
     return globals()[dataset_name]
 
-class EEG():
+class EEG(): # 数据集 (EEG) 参数
     def __init__(self):
-        super(EEG, self).__init__()
+        super(EEG, self).__init__() # 调用父类的初始化方法
         # data parameters
         self.num_classes = 5
         self.class_names = ['W', 'N1', 'N2', 'N3', 'REM']
@@ -48,7 +47,7 @@ class EEG():
         self.jitter_ration = 0.5 # 2
 
 
-class FD():
+class FD(): # 数据集 (FD) 参数
     def __init__(self):
         super(FD, self).__init__()
         self.sequence_len = 5120
@@ -90,7 +89,7 @@ class FD():
         self.jitter_scale_ratio = 1.0 # 2
         self.jitter_ratio = 0.5 # 0.1
 
-class HAR():
+class HAR(): # 数据集 (HAR) 参数
     def __init__(self):
         super(HAR, self)
         self.scenarios = [("2", "11"), ("6", "23"), ("7", "13"), ("9", "18"), ("12", "16")]

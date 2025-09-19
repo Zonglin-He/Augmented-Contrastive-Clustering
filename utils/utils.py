@@ -17,8 +17,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, accuracy_score
 
 
-class AverageMeter(object):
-    """Computes and stores the average and current value"""
+class AverageMeter(object): #计算并存储平均值和当前值
 
     def __init__(self):
         self.reset()
@@ -35,7 +34,7 @@ class AverageMeter(object):
         self.count += n
         self.avg = self.sum / self.count
 
-def fix_randomness(SEED):
+def fix_randomness(SEED): #设置随机种子以确保结果可复现
     random.seed(SEED)
     np.random.seed(SEED)
     torch.manual_seed(SEED)
@@ -44,10 +43,7 @@ def fix_randomness(SEED):
     torch.backends.cudnn.benchmark = False
 
 
-def _logger(logger_name, level=logging.DEBUG):
-    """
-    Method to return a custom logger with the given name and level
-    """
+def _logger(logger_name, level=logging.DEBUG): #创建日志记录器，返回日志
     logger = logging.getLogger(logger_name)
     logger.setLevel(level)
     format_string = "%(message)s"
@@ -63,7 +59,7 @@ def _logger(logger_name, level=logging.DEBUG):
     return logger
 
 
-def starting_logs(data_type,da_method, exp_log_dir, src_id, tgt_id, run_id):
+def starting_logs(data_type,da_method, exp_log_dir, src_id, tgt_id, run_id): #初始化日志记录器和日志目录
     log_dir = os.path.join(exp_log_dir, src_id + "_to_" + tgt_id + "_run_" + str(run_id))
     os.makedirs(log_dir, exist_ok=True)
     log_file_name = os.path.join(log_dir, f"logs_{datetime.now().strftime('%d_%m_%Y_%H_%M_%S')}.log")
@@ -71,7 +67,7 @@ def starting_logs(data_type,da_method, exp_log_dir, src_id, tgt_id, run_id):
     return logger, log_dir
 
 
-def save_checkpoint(home_path, algorithm, selected_scenarios, dataset_configs, log_dir, hparams):
+def save_checkpoint(home_path, algorithm, selected_scenarios, dataset_configs, log_dir, hparams): #保存模型检查点
     save_dict = {
         "x-domains": selected_scenarios,
         "configs": dataset_configs.__dict__,
@@ -84,7 +80,7 @@ def save_checkpoint(home_path, algorithm, selected_scenarios, dataset_configs, l
     torch.save(save_dict, save_path)
 
 
-def weights_init(m):
+def weights_init(m): #初始化神经网络层的权重
     classname = m.__class__.__name__
     if classname.find('Conv') != -1:
         m.weight.data.normal_(0.0, 0.02)
@@ -95,7 +91,7 @@ def weights_init(m):
         m.weight.data.normal_(0.0, 0.1)
         m.bias.data.fill_(0)
 
-def _calc_metrics(pred_labels, true_labels, log_dir, home_path, target_names):
+def _calc_metrics(pred_labels, true_labels, log_dir, home_path, target_names): #计算分类指标并保存分类报告
     pred_labels = np.array(pred_labels).astype(int)
     true_labels = np.array(true_labels).astype(int)
 
@@ -113,7 +109,7 @@ def _calc_metrics(pred_labels, true_labels, log_dir, home_path, target_names):
 
     return accuracy * 100, r["macro avg"]["f1-score"] * 100
 
-def _calc_metrics_pretrain(src_pred, src_true,trg_pred, trg_true,  log_dir, home_path, target_names):
+def _calc_metrics_pretrain(src_pred, src_true,trg_pred, trg_true,  log_dir, home_path, target_names):  #计算预训练模型在源域和目标域上的分类指标
 
     src_pred_labels = np.array(src_pred).astype(int)
     src_true_labels = np.array(src_true).astype(int)
@@ -132,7 +128,7 @@ def _calc_metrics_pretrain(src_pred, src_true,trg_pred, trg_true,  log_dir, home
     return src_acc * 100, src_df["macro avg"]["f1-score"] * 100, trg_acc *100,  trg_df["macro avg"]["f1-score"] *100
 
 import collections
-def to_device(input, device):
+def to_device(input, device): #将输入数据移动到指定设备（CPU或GPU）
     if torch.is_tensor(input):
         return input.to(device=device)
     elif isinstance(input, str):
@@ -144,7 +140,7 @@ def to_device(input, device):
     else:
         raise TypeError("Input must contain tensor, dict or list, found {type(input)}")
 
-def copy_Files(destination):
+def copy_Files(destination): #备份关键代码文件到指定目录
     destination_dir = os.path.join(destination, "MODEL_BACKUP_FILES")
     os.makedirs(destination_dir, exist_ok=True)
     copy("main.py", os.path.join(destination_dir, "main.py"))
@@ -154,14 +150,14 @@ def copy_Files(destination):
     copy(f"configs/sweep_params.py", os.path.join(destination_dir, f"sweep_params.py"))
     copy("utils.py", os.path.join(destination_dir, "utils.py"))
 
-def get_iwcv_value(weight, error):
+def get_iwcv_value(weight, error): #计算加权交叉验证风险
     N, d = weight.shape
     _N, _d = error.shape
     assert N == _N and d == _d, 'dimension mismatch!'
     weighted_error = weight * error
     return np.mean(weighted_error)
 
-def get_dev_value(weight, error):
+def get_dev_value(weight, error): #计算加权验证风险
     """
     :param weight: shape [N, 1], the importance weight for N source samples in the validation set
     :param error: shape [N, 1], the error value for each source sample in the validation set
@@ -176,7 +172,7 @@ def get_dev_value(weight, error):
     eta = - cov / var_w
     return np.mean(weighted_error) + eta * np.mean(weight) - eta
 
-class simple_MLP(nn.Module):
+class simple_MLP(nn.Module): #简单的多层感知机，用于域分类器
     def __init__(self, inp_units, out_units=2):
         super(simple_MLP, self).__init__()
 
@@ -190,7 +186,7 @@ class simple_MLP(nn.Module):
         x = self.softmax(self.output(x))
         return x   
     
-def get_weight_gpu(source_feature, target_feature, validation_feature, configs, device):
+def get_weight_gpu(source_feature, target_feature, validation_feature, configs, device): #计算源域和目标域样本的权重
     """
     :param source_feature: shape [N_tr, d], features from training set
     :param target_feature: shape [N_te, d], features from test set
@@ -237,7 +233,7 @@ def get_weight_gpu(source_feature, target_feature, validation_feature, configs, 
     return domain_out[:, :1] / domain_out[:, 1:] * N_s * 1.0 / N_t
 
 
-def calc_dev_risk(target_model, src_train_dl, tgt_train_dl, src_valid_dl, configs, device):
+def calc_dev_risk(target_model, src_train_dl, tgt_train_dl, src_valid_dl, configs, device): #计算验证风险
     src_train_feats, _ = target_model.feature_extractor(src_train_dl.dataset.x_data.float().to(device))
     tgt_train_feats, _ = target_model.feature_extractor(tgt_train_dl.dataset.x_data.float().to(device))
     src_valid_feats, _ = target_model.feature_extractor(src_valid_dl.dataset.x_data.float().to(device))
@@ -251,7 +247,7 @@ def calc_dev_risk(target_model, src_train_dl, tgt_train_dl, src_valid_dl, config
     return dev_risk
 
 
-def calculate_risk(target_model, risk_dataloader, device):
+def calculate_risk(target_model, risk_dataloader, device): #计算给定数据集上的分类损失作为风险
 
     x_data = risk_dataloader.dataset.x_data
     y_data = risk_dataloader.dataset.y_data
@@ -261,7 +257,7 @@ def calculate_risk(target_model, risk_dataloader, device):
     cls_loss = F.cross_entropy(pred, y_data.long().to(device))
     return cls_loss.item()
 
-def get_named_submodule(model, sub_name: str):
+def get_named_submodule(model, sub_name: str): #根据子模块名称获取子模块
     names = sub_name.split(".")
     module = model
     for name in names:
@@ -270,7 +266,7 @@ def get_named_submodule(model, sub_name: str):
     return module
 
 
-def set_named_submodule(model, sub_name, value):
+def set_named_submodule(model, sub_name, value): #根据子模块名称设置子模块的值
     names = sub_name.split(".")
     module = model
     for i in range(len(names)):

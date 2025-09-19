@@ -1,12 +1,11 @@
 import math
 
-def get_hparams_class(dataset_name):
-    """Return the algorithm class with the given name."""
+def get_hparams_class(dataset_name): # 根据给定数据集名称字符串返回对应的数据集配置类
     if dataset_name not in globals():
         raise NotImplementedError("Dataset not found: {}".format(dataset_name))
     return globals()[dataset_name]
 
-class FD():
+class FD(): 
     def __init__(self):
         super(FD, self).__init__()
         self.train_params = {
